@@ -1,7 +1,8 @@
 import pyautogui as py
 import pyperclip
 import time
-
+from pynput import keyboard
+from threading import Thread
 """
 # IN CASE TO CHECK POSITION
 pos = py.position()
@@ -18,7 +19,7 @@ gpt_answer_x, gpt_answer_y = 1228, 828
 
 def user_input():
     for i in range(200):
-        time.sleep(1)
+        time.sleep(100)
         # getting input
         py.moveTo(user_x, user_y)
         py.click(button="right")
@@ -58,10 +59,24 @@ def user_input():
         py.hotkey("enter")
 
 
-user_input()
+def on_press(key, abortKey="esc"):
+    try:
+        k = key.char
+    except:
+        k = key.name
 
-'''
-py.moveTo(msg_x, msg_y, 0.5)
-py.click()
-py.write("hello")
-'''
+    if k == abortKey:
+        print(f"Pressed: '{k}', program is closed..")
+        return False
+    else:
+        print(f"\nPressed: '{k}', to close press '{abortKey}'")
+
+
+if __name__ == "__main__":
+    abortkey = "esc"
+    listener = keyboard.Listener(on_press=on_press, abortKey=abortkey)
+    listener.start()
+
+    Thread(target=user_input, name="user_input", daemon=True,).start()
+
+    listener.join()
